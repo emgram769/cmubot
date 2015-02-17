@@ -1,0 +1,2 @@
+# cmubot
+A snapchat bot
