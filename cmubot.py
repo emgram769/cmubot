@@ -2,6 +2,7 @@ from snapchatbots import SnapchatBot, Snap
 from PIL import Image
 import zbar
 
+
 class StorifierBot(SnapchatBot):
     def on_friend_add(self, friend):
         print "Adding %s" % (friend)
@@ -38,10 +39,23 @@ class StorifierBot(SnapchatBot):
             del(image)
             #Assuming data is encoded in utf8
             return symbol.data.decode(u'utf-8')
+    def user_closure(self, user, action):
+        def o():
+            try:
+                snap = Snap.from_file(action + '.png')
+                self.send_snap([user], snap)
+            except Exception as e:
+                self.log("Unable to send "+action+".png " + str(e))
+        return o
     def process_data(self, sender, data):
-        if data == 'stef':
-            snap = Snap.from_file('poopoo.png')
-            self.send_snap([sender], snap)
+        try:
+            d = data.split(':')
+            action = d[0]
+            freq = int(d[1])
+            self.register_event(freq, self.user_closure(sender, action))
+            self.log("Registered " + action + " at freq " + str(freq))
+        except Exception as e:
+            self.log("Poorly formatted data: " + data + " " + str(e))
         return
 
 if __name__ == '__main__':

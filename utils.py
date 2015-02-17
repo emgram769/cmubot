@@ -1,3 +1,8 @@
+"""
+" Original code:
+" https://github.com/agermanidis/SnapchatBot
+"""
+
 import tempfile, mimetypes, datetime, subprocess, re, math
 from PIL import Image
 

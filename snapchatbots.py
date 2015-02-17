@@ -1,3 +1,8 @@
+"""
+" Original code:
+" https://github.com/agermanidis/SnapchatBot
+"""
+
 import time, tempfile, subprocess, re, datetime, mimetypes, logging, uuid
 from pysnap import Snapchat, get_file_extension
 from PIL import Image
@@ -92,6 +97,9 @@ class SnapchatBot(object):
         self.current_friends = self.get_friends()
         self.added_me = self.get_added_me()
 
+        self.events = []
+        self.ticks = 0
+
         if hasattr(self, "initialize"):
             self.initialize(**kwargs)
 
@@ -138,8 +146,21 @@ class SnapchatBot(object):
                 for friend in newly_deleted:
                     self.log("User %s deleted me" % friend)
                     self.on_friend_delete(friend)
+            
+            self.ticks += 1
+            freq = 0
+            while self.ticks % 2**freq == 0:
+                if freq < len(self.events):
+                    for func in self.events[freq]:
+                        func()
+                freq += 1
 
             time.sleep(timeout)
+
+    def register_event(self, freq, func):
+        if len(self.events) <= freq:
+            self.events.extend([[] for i in xrange(1 + freq - len(self.events))])
+        self.events[freq].append(func)
 
     def get_friends(self):
         return map(lambda fr: fr['name'], self.client.get_friends())
