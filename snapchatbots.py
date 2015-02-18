@@ -8,7 +8,7 @@ from pysnap import Snapchat, get_file_extension
 from PIL import Image
 from StringIO import StringIO
 
-from utils import create_temporary_file, is_video_file, is_image_file, guess_type, resize_image, get_video_duration, MEDIA_TYPE_VIDEO, MEDIA_TYPE_IMAGE
+from utils import create_temporary_file, is_video_file, is_image_file, guess_type, resize_image, get_video_duration, MEDIA_TYPE_VIDEO, MEDIA_TYPE_IMAGE, MEDIA_TYPE_VIDEO_NOAUDIO
 
 FORMAT = '[%(asctime)-15s] %(message)s'
 logging.basicConfig(format=FORMAT)
@@ -72,13 +72,17 @@ class Snap(object):
 
             self.file = create_temporary_file(suffix)
 
-            if self.media_type is MEDIA_TYPE_VIDEO:
+            if (self.media_type is MEDIA_TYPE_VIDEO) or (self.media_type is MEDIA_TYPE_VIDEO_NOAUDIO) or (opts['data'][0:2] == b'\x00\x00'):
                 self.file.write(opts['data'])
                 self.file.flush()
 
             else:
-                image = Image.open(StringIO(opts['data']))
-                resize_image(image, self.file.name)
+                print self.media_type#, opts
+                try:
+                    image = Image.open(StringIO(opts['data']))
+                    resize_image(image, self.file.name)
+                except Exception as e:
+                    print "Unable to process image "+str(e)
 
         else:
             path = opts['path']

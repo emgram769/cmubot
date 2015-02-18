@@ -69,4 +69,8 @@ if __name__ == '__main__':
         if user not in friends:
             print "Adding %s" % (user)
             bot.add_friend(user)
-    bot.listen()
+    while 1:
+        try:
+            bot.listen()
+        except Exception as e:
+            bot.log(str(e))
