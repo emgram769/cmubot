@@ -5,8 +5,10 @@ import zbar
 
 class StorifierBot(SnapchatBot):
     def on_friend_add(self, friend):
-        print "Adding %s" % (friend)
+        self.log("Adding " + friend)
         self.add_friend(friend)
+        snap = Snap.from_file('welcome.png', duration=10)
+        self.send_snap([friend], snap)
     def on_friend_delete(self, friend):
         self.delete_friend(self, friend)
     def on_snap(self, sender, snap):
@@ -42,7 +44,7 @@ class StorifierBot(SnapchatBot):
     def user_closure(self, user, action):
         def o():
             try:
-                snap = Snap.from_file(action + '.png')
+                snap = Snap.from_file(action + '.png', duration=10)
                 self.send_snap([user], snap)
             except Exception as e:
                 self.log("Unable to send "+action+".png " + str(e))
